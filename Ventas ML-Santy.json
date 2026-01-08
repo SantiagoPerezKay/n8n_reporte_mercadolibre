@@ -1,0 +1,1640 @@
+{
+  "name": "Ventas ML-Santy",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## renovar acces token cada 6hs usando refresh token\ny allacenaer en la bd\n## Cuenta H",
+        "height": 264,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        336,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "7624f3b7-a246-4757-9e2d-004aec892ebe",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mercadolibre.com/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "client_id",
+              "value": "2281835183919861"
+            },
+            {
+              "name": "client_secret",
+              "value": "mn20s4MZs5eK2nkyyS4kpBIlOFYgHFNI"
+            },
+            {
+              "name": "refresh_token",
+              "value": "TG-68baeea5d572c300010967e7-196198035"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        -352
+      ],
+      "id": "6324c436-ad15-433e-996f-7e3383a2a2a7",
+      "name": "obtener/renovar access"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=\n {{ $json.body }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        16
+      ],
+      "id": "2455dc20-22e3-4f15-bc86-49fb97cbb7dd",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lee el HTML del nodo anterior\nconst html = $input.item.json.html;\n\n// Retorna la respuesta HTTP directamente\nreturn {\n  statusCode: 200,\n  headers: {\n    'Content-Type': 'text/html; charset=utf-8'\n  },\n  body: html\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        16
+      ],
+      "id": "a191c972-f0b3-4b81-a8c1-ff9ff059e9a0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "path": "reportediario",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        16
+      ],
+      "id": "0991edbb-8014-470e-bd7e-1a3a4c67954b",
+      "name": "info ventas ml",
+      "webhookId": "6cfb1a07-1a5d-40dd-bf7e-1573c70e5325"
+    },
+    {
+      "parameters": {
+        "path": "datos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        240
+      ],
+      "id": "e4dc3cd5-fbe4-4e83-81ec-fbceada58d93",
+      "name": "traer datos",
+      "webhookId": "6cfb1a07-1a5d-40dd-bf7e-1573c70e5325"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  v.date_approved,\n    v.order_id,\n    v.pack_id,\n    v.sku,\n    v.seller_nickname,\n    v.date_created,\n    v.shipping_status,\n    d.codigo,\n    d.nombre_estanteria,\n    d.depo0,\n    d.depo1,\n    d.depo2,\n    d.depo4,\n    d.depo5,\n    d.depo6,\n    d.depo7,\n    d.depo8,\n    d.depo9,\n    d.depo11,\n    d.depo15,\n    d.stock_total\nFROM ventas_ml v\nLEFT JOIN detalle_venta d \n    ON v.order_id = d.order_id\nWHERE v.shipping_status = 'ready_to_ship' and v.ocultar=FALSE\nORDER BY v.order_id;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        432,
+        240
+      ],
+      "id": "a29a29ea-08d3-43a7-a0ba-4782a26b2c28",
+      "name": "traerdatosbd",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        240
+      ],
+      "id": "d033474a-a1ca-486e-8670-c1839aeeec6b",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "content": "## DASHBOARD\n\n## https://n8n.calzalindo.com.ar/webhook/reportediario",
+        "height": 688,
+        "width": 1024,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "a9216c86-c6fc-47a1-8925-508ddb3a3145",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  '{{ $json.order_id }}' AS order_id,\n  '{{ $json.nombre_ml }}' AS nombre_ml,\n  '{{ $json.descripcion_1 }}' AS nombre_estanteria,\n  '{{ $json.codigo_barra }}' AS sku,\n  '{{ $json.codigo }}' AS codigo_corto,\n  s.deposito,\n  SUM(CAST(s.stock_actual AS NUMERIC)) AS stock_suma\nFROM stock s\nWHERE s.deposito NOT IN (199, 198)\n  AND s.articulo::TEXT = '{{ $json.codigo }}'\nGROUP BY s.deposito;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1968,
+        -64
+      ],
+      "id": "8263a66e-58b4-46e0-93cc-1b7bc15309ac",
+      "name": "consultar stock",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    '{{ $json.date_approved }}' as date_approved,\n    TRY_CAST(NULLIF('{{ $json.order_id }}','') AS BIGINT) AS order_id,\n    {{ $json.pack_id }} as pack_id,\n   '{{ $json.seller_nickname }}' as seller_nickname,\n    TRY_CAST(NULLIF('{{ $json.codigo }}','') AS BIGINT) AS codigo,\n    TRY_CAST(NULLIF('{{ $json.sku }}','') AS BIGINT) AS sku,\n    NULLIF('{{ $json.nombre_estanteria }}','') AS nombre_estanteria,\n    TRY_CAST(NULLIF('{{ $json.depo0 }}','') AS INT) AS depo0,\n    TRY_CAST(NULLIF('{{ $json.depo1 }}','') AS INT) AS depo1,\n    TRY_CAST(NULLIF('{{ $json.depo2 }}','') AS INT) AS depo2,\n    TRY_CAST(NULLIF('{{ $json.depo4 }}','') AS INT) AS depo4,\n    TRY_CAST(NULLIF('{{ $json.depo5 }}','') AS INT) AS depo5,\n    TRY_CAST(NULLIF('{{ $json.depo6 }}','') AS INT) AS depo6,\n    TRY_CAST(NULLIF('{{ $json.depo7 }}','') AS INT) AS depo7,\n    TRY_CAST(NULLIF('{{ $json.depo8 }}','') AS INT) AS depo8,\n    TRY_CAST(NULLIF('{{ $json.depo9 }}','') AS INT) AS depo9,\n    TRY_CAST(NULLIF('{{ $json.depo11 }}','') AS INT) AS depo11,\n    TRY_CAST(NULLIF('{{ $json.depo15 }}','') AS INT) AS depo15,\n\n    TRY_CAST(NULLIF('{{ $json.stock_total }}','') AS INT) AS stock_total,\n\n    a.descripcion_4 AS color,\n    a.descripcion_5 AS talle\n\nFROM (\n    SELECT TRY_CAST(NULLIF('{{ $json.codigo }}','') AS BIGINT) AS codigo_json\n) j\nLEFT JOIN articulo a\n    ON a.codigo = j.codigo_json;\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        240
+      ],
+      "id": "d54f7b31-496d-4d7d-b97d-24c7b4a4024e",
+      "name": "Traer color y talle",
+      "credentials": {
+        "microsoftSql": {
+          "id": "duIWyGyA6m0j4OaU",
+          "name": "MSGESTiON 01  directa 111"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        -640
+      ],
+      "id": "590ef1cc-1103-4bee-9e11-9f36c0c5ac75",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mercadolibre.com/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "client_id",
+              "value": "1261991306024946"
+            },
+            {
+              "name": "client_secret",
+              "value": "b2k0XlHPjke1wWSq1UniCYMn3mADCgSM"
+            },
+            {
+              "name": "refresh_token",
+              "value": "TG-691492e94d6fcf000128647a-159354061"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        -640
+      ],
+      "id": "f9167230-45b4-4fd3-b94e-fbd2049283f0",
+      "name": "obtener/renovar access1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tokens",
+          "mode": "list",
+          "cachedResultName": "tokens"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": 1,
+            "calzalindo_tama": "=Bearer {{ $json.access_token }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_h",
+              "displayName": "calzalindo_h",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_tama",
+              "displayName": "calzalindo_tama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "calzalindo_lu",
+              "displayName": "calzalindo_lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        800,
+        -640
+      ],
+      "id": "c5b998f4-5bc3-42cc-8924-5de8043267b7",
+      "name": "Update rows in a table2",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "tokentama",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        -64
+      ],
+      "id": "b61dd0a1-4888-4ee1-b866-de63d9746378",
+      "name": "recibi tg token ml",
+      "webhookId": "a49a2592-f46c-4255-9aa5-4d51566ea5ff",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mercadolibre.com/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "client_id",
+              "value": "1261991306024946"
+            },
+            {
+              "name": "client_secret",
+              "value": "b2k0XlHPjke1wWSq1UniCYMn3mADCgSM"
+            },
+            {
+              "name": "code",
+              "value": "TG-691492a7392d9700010d485d-159354061"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "https://n8n.calzalindo.com.ar/webhook/tokentama"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1536,
+        -64
+      ],
+      "id": "14b6e2c8-fbb7-4785-a119-9a9a5cfbffa1",
+      "name": "obtener codigo por unica vez tama",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tokens",
+          "mode": "list",
+          "cachedResultName": "tokens"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": 1,
+            "calzalindo_h": "=Bearer {{ $json.access_token }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_h",
+              "displayName": "calzalindo_h",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "calzalindo_tama",
+              "displayName": "calzalindo_tama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_lu",
+              "displayName": "calzalindo_lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        800,
+        -352
+      ],
+      "id": "85eea643-d0a6-4234-b5c9-d6669bc8976e",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## renovar acces token cada 6hs usando refresh token\ny allacenaer en la bd\n## Cuenta Tama",
+        "height": 296,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        336,
+        -768
+      ],
+      "typeVersion": 1,
+      "id": "3752011e-9cc7-4245-9759-b3940d49cf6b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "path": "tokenana",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        144
+      ],
+      "id": "8aaa3b09-c0fd-48b0-9b8d-d261ddb8e79c",
+      "name": "recibi tg token ml analucia",
+      "webhookId": "a49a2592-f46c-4255-9aa5-4d51566ea5ff"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mercadolibre.com/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "client_id",
+              "value": "3538031045263580"
+            },
+            {
+              "name": "client_secret",
+              "value": "Hasen8t2N2Zbfpf0vp51s4ZzP4QFoDCH"
+            },
+            {
+              "name": "code",
+              "value": "TG-6914a085392d9700010dcba9-529435195"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "https://n8n.calzalindo.com.ar/webhook/tokenana"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        128
+      ],
+      "id": "5a1aa1b6-6985-428a-bc6c-b2eff4cc4130",
+      "name": "obtener codigo por unica vez lucia",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mercadolibre.com/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "client_id",
+              "value": "3538031045263580"
+            },
+            {
+              "name": "client_secret",
+              "value": "Hasen8t2N2Zbfpf0vp51s4ZzP4QFoDCH"
+            },
+            {
+              "name": "refresh_token",
+              "value": "TG-6914a0e272769c00010d7c12-529435195"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        -928
+      ],
+      "id": "387f0173-58a3-436c-860f-0c9fe4dd85f1",
+      "name": "obtener/renovar access2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tokens",
+          "mode": "list",
+          "cachedResultName": "tokens"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": 1,
+            "calzalindo_lu": "=Bearer {{ $json.access_token }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_h",
+              "displayName": "calzalindo_h",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_tama",
+              "displayName": "calzalindo_tama",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "calzalindo_lu",
+              "displayName": "calzalindo_lu",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        800,
+        -928
+      ],
+      "id": "1d2021cb-f70f-4304-8744-488379afe0a0",
+      "name": "Update rows in a table3",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## renovar acces token cada 6hs usando refresh token\ny allacenaer en la bd\n## Cuenta Ana lucia\n",
+        "height": 280,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        336,
+        -1056
+      ],
+      "typeVersion": 1,
+      "id": "c0b22318-fc67-4821-8ed4-85bda20a1589",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ventas_ml (\n    order_id,\n    pack_id,\n    date_approved,       -- ← AHORA VIENE DEL INPUT date_created\n    date_created,        -- ← AHORA ES NOW()\n    expiration_date,\n    date_first_printed,\n    reason,\n    operation_type,\n    total_paid_amount,\n    transaction_amount,\n    sale_fee,\n    payment_method_id,\n    payment_type,\n    payer_id,\n    shipping_id,\n    shipping_status,\n    substatus,\n    tracking_number,\n    sku,\n    quantity,\n    color,\n    talle,\n    buyer_id,\n    buyer_nickname,\n    seller_id,\n    seller_nickname\n)\nVALUES (\n    {{ $json.order_id }},\n    {{ $json.pack_id ? $json.pack_id : 'NULL' }},\n\n    {{ $json.date_created ? `'${$json.date_created}'` : 'NULL' }},   -- date_approved (VIENE DEL INPUT)\n\n    NOW(),                                                            -- date_created (AHORA MISMO)\n\n    {{ $json.expiration_date ? `'${$json.expiration_date}'` : 'NULL' }},\n    {{ $json.date_first_printed ? `'${$json.date_first_printed}'` : 'NULL' }},\n    {{ $json.reason ? `'${$json.reason.replace(/'/g,\"''\")}'` : 'NULL' }},\n    {{ $json.operation_type ? `'${$json.operation_type.replace(/'/g,\"''\")}'` : 'NULL' }},\n    {{ $json.total_paid_amount }},\n    {{ $json.transaction_amount }},\n    {{ $json.sale_fee ? $json.sale_fee : 'NULL' }},\n    {{ $json.payment_method_id ? `'${$json.payment_method_id}'` : 'NULL' }},\n    {{ $json.payment_type ? `'${$json.payment_type}'` : 'NULL' }},\n    {{ $json.payer_id }},\n    {{ $json.shipping_id }},\n    {{ $json.shipping_status ? `'${$json.shipping_status}'` : 'NULL' }},\n    {{ $json.substatus ? `'${$json.substatus}'` : 'NULL' }},\n    {{ $json.tracking_number ? `'${$json.tracking_number}'` : 'NULL' }},\n    {{ $json.sku ? $json.sku : 'NULL' }},\n    {{ $json.quantity }},\n    {{ $json.color ? `'${$json.color.replace(/'/g,\"''\")}'` : 'NULL' }},\n    {{ $json.talle ? `'${$json.talle.replace(/'/g,\"''\")}'` : 'NULL' }},\n    {{ $json.buyer_id }},\n    {{ $json.buyer_nickname ? `'${$json.buyer_nickname.replace(/'/g,\"''\")}'` : 'NULL' }},\n    {{ $json.seller_id }},\n    {{ $json.seller_nickname ? `'${$json.seller_nickname.replace(/'/g,\"''\")}'` : 'NULL' }}\n)\nON CONFLICT (order_id)\nDO UPDATE SET\n    pack_id            = EXCLUDED.pack_id,\n    date_approved      = EXCLUDED.date_approved,   -- (valor viejo date_created)\n    date_created       = EXCLUDED.date_created,    -- (NOW)\n    expiration_date    = EXCLUDED.expiration_date,\n    date_first_printed = EXCLUDED.date_first_printed,\n    reason             = EXCLUDED.reason,\n    operation_type     = EXCLUDED.operation_type,\n    total_paid_amount  = EXCLUDED.total_paid_amount,\n    transaction_amount = EXCLUDED.transaction_amount,\n    sale_fee           = EXCLUDED.sale_fee,\n    payment_method_id  = EXCLUDED.payment_method_id,\n    payment_type       = EXCLUDED.payment_type,\n    payer_id           = EXCLUDED.payer_id,\n    shipping_id        = EXCLUDED.shipping_id,\n    shipping_status    = EXCLUDED.shipping_status,\n    substatus          = EXCLUDED.substatus,\n    tracking_number    = EXCLUDED.tracking_number,\n    sku                = EXCLUDED.sku,\n    quantity           = EXCLUDED.quantity,\n    color              = EXCLUDED.color,\n    talle              = EXCLUDED.talle,\n    buyer_id           = EXCLUDED.buyer_id,\n    buyer_nickname     = EXCLUDED.buyer_nickname,\n    seller_id          = EXCLUDED.seller_id,\n    seller_nickname    = EXCLUDED.seller_nickname,\n    updated_at         = NOW();\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2064,
+        -736
+      ],
+      "id": "1079252f-3419-4214-a6d2-e8c59eb995c0",
+      "name": "agregar a ventas_ml2",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select order_id,reason,sku from ventas_ml\nwhere shipping_status='ready_to_ship'\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2368,
+        -736
+      ],
+      "id": "9412652d-84e8-481d-adfa-88b26441f266",
+      "name": "traer datos de ventas2",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Agregar ventas del ultimo mes estado paid y con shipping status \"ready to ship\"\n",
+        "height": 224,
+        "width": 1248,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1024,
+        -800
+      ],
+      "typeVersion": 1,
+      "id": "af4ca40c-eacf-4055-97ba-0f667780a491",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Dashboard Ventas y Stock</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            padding: 5px;\n            min-height: 100vh;\n            font-size: 13px;\n        }\n        \n        .container {\n            max-width: 98%;\n            margin: 0 auto;\n            background: white;\n            border-radius: 15px;\n            box-shadow: 0 20px 60px rgba(0,0,0,0.3);\n            padding: 15px;\n        }\n        \n        h1 {\n            color: #333;\n            margin-bottom: 15px;\n            text-align: center;\n            font-size: 1.5em;\n        }\n        \n        .stats-container {\n            display: flex;\n            gap: 15px;\n            margin-bottom: 15px;\n            justify-content: center;\n            flex-wrap: wrap;\n        }\n        \n        .stat-card {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 12px 25px;\n            border-radius: 10px;\n            text-align: center;\n            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);\n            min-width: 150px;\n        }\n        \n        .stat-card .label {\n            font-size: 0.8em;\n            opacity: 0.9;\n            margin-bottom: 3px;\n        }\n        \n        .stat-card .value {\n            font-size: 1.8em;\n            font-weight: 700;\n            line-height: 1;\n        }\n        \n        .filters {\n            background: #f8f9fa;\n            padding: 12px;\n            border-radius: 10px;\n            margin-bottom: 15px;\n            display: flex;\n            gap: 15px;\n            align-items: center;\n            flex-wrap: wrap;\n        }\n        \n        .filter-group {\n            display: flex;\n            flex-direction: column;\n            gap: 3px;\n        }\n        \n        .filter-group label {\n            font-weight: 600;\n            color: #555;\n            font-size: 0.8em;\n        }\n        \n        .filter-group select {\n            padding: 6px 10px;\n            border: 2px solid #ddd;\n            border-radius: 5px;\n            font-size: 0.85em;\n            transition: border-color 0.3s;\n            background: white;\n            cursor: pointer;\n            min-width: 160px;\n        }\n        \n        .filter-group select:focus {\n            outline: none;\n            border-color: #667eea;\n        }\n        \n        .filter-group input {\n            padding: 6px 10px;\n            border: 2px solid #ddd;\n            border-radius: 5px;\n            font-size: 0.85em;\n            transition: border-color 0.3s;\n        }\n        \n        .filter-group input:focus {\n            outline: none;\n            border-color: #667eea;\n        }\n        \n        button {\n            padding: 6px 16px;\n            background: #667eea;\n            color: white;\n            border: none;\n            border-radius: 5px;\n            cursor: pointer;\n            font-size: 0.85em;\n            font-weight: 600;\n            transition: background 0.3s;\n            align-self: flex-end;\n        }\n        \n        button:hover {\n            background: #5568d3;\n        }\n        \n        .table-container {\n            overflow-x: auto;\n            border-radius: 10px;\n            box-shadow: 0 2px 10px rgba(0,0,0,0.1);\n        }\n        \n        table {\n            width: 100%;\n            border-collapse: collapse;\n            min-width: 100%;\n        }\n        \n        thead {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n        }\n        \n        th {\n            padding: 10px 6px;\n            text-align: left;\n            font-weight: 600;\n            font-size: 0.75em;\n            text-transform: uppercase;\n            letter-spacing: 0.3px;\n        }\n        \n        td {\n            padding: 8px 6px;\n            border-bottom: 1px solid #eee;\n            font-size: 0.8em;\n        }\n        \n        .pack-badge {\n            display: inline-block;\n            padding: 3px 8px;\n            background: #ff6b6b;\n            color: white;\n            border-radius: 12px;\n            font-size: 0.8em;\n            font-weight: 600;\n            margin-left: 5px;\n        }\n        \n        .stock-cell {\n            text-align: center;\n            font-weight: 600;\n        }\n        \n        .stock-total {\n            background: #e8f5e9;\n            color: #2e7d32;\n            padding: 5px;\n            border-radius: 5px;\n        }\n        \n        .stock-low {\n            color: #d32f2f;\n        }\n        \n        .stock-medium {\n            color: #f57c00;\n        }\n        \n        .stock-high {\n            color: #388e3c;\n        }\n        \n        .no-data {\n            text-align: center;\n            padding: 40px;\n            color: #999;\n            font-size: 1.2em;\n        }\n        \n        .row-color-1 {\n            background-color: #f8f9fa;\n        }\n        \n        .row-color-2 {\n            background-color: #ffffff;\n        }\n        \n        .same-pack {\n            border-left: 4px solid #667eea;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <h1>📊 Dashboard de Ventas y Stock</h1>\n        \n        <div class=\"stats-container\">\n            <div class=\"stat-card\">\n                <div class=\"label\">Total de Registros</div>\n                <div class=\"value\" id=\"totalRegistros\">0</div>\n            </div>\n        </div>\n        \n        <div class=\"filters\">\n            <div class=\"filter-group\">\n                <label>Vendedor:</label>\n                <select id=\"filtroVendedor\">\n                    <option value=\"\">Todos</option>\n                </select>\n            </div>\n            <div class=\"filter-group\">\n                <label>Hora Desde:</label>\n                <input type=\"datetime-local\" id=\"horaDesde\">\n            </div>\n            <div class=\"filter-group\">\n                <label>Hora Hasta:</label>\n                <input type=\"datetime-local\" id=\"horaHasta\">\n            </div>\n            <button onclick=\"aplicarFiltros()\">Filtrar</button>\n            <button onclick=\"limpiarFiltros()\">Limpiar</button>\n        </div>\n        \n        <div class=\"table-container\">\n            <table id=\"tablaVentas\">\n                <thead>\n                    <tr>\n                        <th>Fecha/Hora</th>\n                        <th>Order ID</th>\n                        <th>Pack ID</th>\n                        <th>Vendedor</th>\n                        <th>SKU</th>\n                        <th>Nombre Estantería</th>\n                        <th>Color</th>\n                        <th>Talle</th>\n                        <th>Stock Total</th>\n                        <th>Depo 0</th>\n                        <th>Depo 1</th>\n                        <th>Depo 2</th>\n                        <th>Depo 4</th>\n                        <th>Depo 5</th>\n                        <th>Depo 6</th>\n                        <th>Depo 7</th>\n                        <th>Depo 8</th>\n                        <th>Depo 9</th>\n                        <th>Depo 15</th>\n                        <th>Depo 11</th>\n                    </tr>\n                </thead>\n                <tbody id=\"tablaBody\">\n                    <tr>\n                        <td colspan=\"20\" class=\"no-data\">Cargando datos...</td>\n                    </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n\n    <script>\n        // ⚠️ IMPORTANTE: Reemplaza esta URL con la URL de tu webhook de n8n (Flujo 1)\n        const API_URL = 'https://n8n.calzalindo.com.ar/webhook/datos';\n        \n        let datosOriginales = [];\n        let datosFiltrados = [];\n\n        function actualizarContador(cantidad) {\n            document.getElementById('totalRegistros').textContent = cantidad;\n        }\n\n        function cargarVendedores() {\n            const vendedoresUnicos = [...new Set(datosOriginales.map(item => item.seller_nickname))].filter(Boolean).sort();\n            const select = document.getElementById('filtroVendedor');\n            \n            select.innerHTML = '<option value=\"\">Todos</option>';\n            vendedoresUnicos.forEach(vendedor => {\n                select.innerHTML += `<option value=\"${vendedor}\">${vendedor}</option>`;\n            });\n        }\n\n        // Función para convertir cualquier valor a número entero\n        function formatStock(stock) {\n            const num = parseFloat(stock);\n            return isNaN(num) ? 0 : Math.floor(num);\n        }\n\n       // Función para formatear fecha y hora\n        function formatDateTime(dateString) {\n            if (!dateString) return '-';\n            try {\n                const date = new Date(dateString);\n                const day = String(date.getDate()).padStart(2, '0');\n                const month = String(date.getMonth() + 1).padStart(2, '0');\n                const year = date.getFullYear();\n                const hours = String(date.getHours()).padStart(2, '0');\n                const minutes = String(date.getMinutes()).padStart(2, '0');\n                return `${day}/${month}/${year} ${hours}:${minutes}`;\n            } catch (e) {\n                return dateString;\n            }\n        }\n      \n        // Función para obtener clase CSS según nivel de stock\n        function getStockClass(stock) {\n            const stockNum = formatStock(stock);\n            if (stockNum <= 5) return 'stock-low';\n            if (stockNum <= 15) return 'stock-medium';\n            return 'stock-high';\n        }\n\n        function renderTabla(datos) {\n            const tbody = document.getElementById('tablaBody');\n            \n            if (datos.length === 0) {\n                tbody.innerHTML = '<tr><td colspan=\"20\" class=\"no-data\">No hay datos para mostrar</td></tr>';\n                actualizarContador(0);\n                return;\n            }\n\n            // Actualizar contador\n            actualizarContador(datos.length);\n\n            // Agrupar por pack_id para identificar packs duplicados\n            const packGroups = {};\n            datos.forEach(item => {\n                if (item.pack_id) {\n                    if (!packGroups[item.pack_id]) {\n                        packGroups[item.pack_id] = [];\n                    }\n                    packGroups[item.pack_id].push(item);\n                }\n            });\n\n            let html = '';\n            let currentColor = 1;\n            let lastPackId = null;\n\n            datos.forEach((item, index) => {\n                // Cambiar color solo si cambia el pack_id\n                if (item.pack_id !== lastPackId) {\n                    currentColor = currentColor === 1 ? 2 : 1;\n                    lastPackId = item.pack_id;\n                }\n\n                const rowClass = `row-color-${currentColor}`;\n                const hasDuplicatePack = item.pack_id && packGroups[item.pack_id] && packGroups[item.pack_id].length > 1;\n                const samePack = hasDuplicatePack ? 'same-pack' : '';\n                \n                html += `\n                    <tr class=\"${rowClass} ${samePack}\">\n                        <td><small>${formatDateTime(item.date_approved)}</small></td>\n                        <td><strong>${item.order_id || '-'}</strong></td>\n                        <td>\n                            ${item.pack_id || '-'}\n                            ${hasDuplicatePack ? '<span class=\"pack-badge\">PACK</span>' : ''}\n                        </td>\n                        <td>${item.seller_nickname || '-'}</td>\n                        <td>${item.sku || '-'}</td>\n                        <td>${item.nombre_estanteria || '-'}</td>\n                        <td>${item.color || '-'}</td>\n                        <td>${item.talle || '-'}</td>\n                        <td class=\"stock-cell stock-total\">${formatStock(item.stock_total)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo0)}\">${formatStock(item.depo0)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo1)}\">${formatStock(item.depo1)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo2)}\">${formatStock(item.depo2)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo4)}\">${formatStock(item.depo4)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo5)}\">${formatStock(item.depo5)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo6)}\">${formatStock(item.depo6)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo7)}\">${formatStock(item.depo7)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo8)}\">${formatStock(item.depo8)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo9)}\">${formatStock(item.depo9)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo15)}\">${formatStock(item.depo15)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo11)}\">${formatStock(item.depo11)}</td>\n                    </tr>\n                `;\n            });\n\n            tbody.innerHTML = html;\n        }\n\n        function aplicarFiltros() {\n            const vendedor = document.getElementById('filtroVendedor').value;\n            const horaDesde = document.getElementById('horaDesde').value;\n            const horaHasta = document.getElementById('horaHasta').value;\n\n            datosFiltrados = datosOriginales.filter(item => {\n                // Filtro por vendedor\n                if (vendedor && item.seller_nickname !== vendedor) return false;\n                \n                // Filtro por fecha\n                if (!item.date_approved) return true;\n                \n                const fecha = new Date(item.date_approved);\n                \n                if (horaDesde && fecha < new Date(horaDesde)) return false;\n                if (horaHasta && fecha > new Date(horaHasta)) return false;\n                \n                return true;\n            });\n\n            renderTabla(datosFiltrados);\n        }\n\n        function limpiarFiltros() {\n            document.getElementById('filtroVendedor').value = '';\n            document.getElementById('horaDesde').value = '';\n            document.getElementById('horaHasta').value = '';\n            datosFiltrados = [...datosOriginales];\n            renderTabla(datosFiltrados);\n        }\n// Preconfigurar filtro de horaHasta con las 13:00 hora local (sin UTC)\nfunction setHoraHastaPorDefecto() {\n    const ahora = new Date();\n\n    // Crear nueva fecha con hora local 13:00\n    const fechaLocal = new Date(\n        ahora.getFullYear(),\n        ahora.getMonth(),\n        ahora.getDate(),\n        13, 0, 0\n    );\n\n    // Formatear manualmente al formato YYYY-MM-DDTHH:MM (sin usar toISOString)\n    const year = fechaLocal.getFullYear();\n    const month = String(fechaLocal.getMonth() + 1).padStart(2, '0');\n    const day = String(fechaLocal.getDate()).padStart(2, '0');\n    const hours = String(fechaLocal.getHours()).padStart(2, '0');\n    const minutes = String(fechaLocal.getMinutes()).padStart(2, '0');\n\n    const fechaLocalString = `${year}-${month}-${day}T${hours}:${minutes}`;\n\n    document.getElementById('horaHasta').value = fechaLocalString;\n}\n\n// Ejecutar al cargar la página\nsetHoraHastaPorDefecto();\n\n\n\n        // Función para cargar datos desde n8n\n        async function cargarDatosDesdeN8N() {\n            const tbody = document.getElementById('tablaBody');\n            tbody.innerHTML = '<tr><td colspan=\"20\" class=\"no-data\">⏳ Cargando datos desde la base de datos...</td></tr>';\n            actualizarContador(0);\n            \n            try {\n                const response = await fetch(API_URL);\n                \n                if (!response.ok) {\n                    throw new Error(`Error HTTP: ${response.status}`);\n                }\n                \n                const data = await response.json();\n                \n                // n8n devuelve los datos en diferentes formatos según configuración\n                // Intentar detectar el formato correcto\n                if (Array.isArray(data)) {\n                    datosOriginales = data;\n                } else if (data.body && Array.isArray(data.body)) {\n                    datosOriginales = data.body;\n                } else if (Array.isArray(data[0])) {\n                    datosOriginales = data[0];\n                } else {\n                    console.error('Formato de datos no reconocido:', data);\n                    throw new Error('Formato de datos no válido');\n                }\n                \n                datosFiltrados = [...datosOriginales];\n                cargarVendedores();\n                renderTabla(datosFiltrados);\n                \n                console.log('✅ Datos cargados correctamente:', datosOriginales.length, 'registros');\n            } catch (error) {\n                console.error('❌ Error cargando datos:', error);\n                tbody.innerHTML = `<tr><td colspan=\"20\" class=\"no-data\">⚠️ Error al cargar datos: ${error.message}<br>Verifica la URL del API y la conexión a n8n</td></tr>`;\n                actualizarContador(0);\n            }\n        }\n        \n        // Cargar datos al inicio\n        cargarDatosDesdeN8N();\n        \n        // Auto-actualizar cada 30 segundos (opcional)\n        // setInterval(cargarDatosDesdeN8N, 30000);\n    </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        128
+      ],
+      "id": "a1b94212-7cb1-40cb-aa4e-8dd54407b3c5",
+      "name": "HTML1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  '{{ $json.order_id }}' AS order_id,\n  '{{ $json.reason }}' AS nombre_ml,\n   '{{ $json.sku }}'  as sku,\n  descripcion_1,\n  codigo_barra,\n  codigo\nFROM articulo\nWHERE codigo_barra = {{ $json.sku }};\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        2608,
+        -736
+      ],
+      "id": "d8fee51b-16a4-4f88-bc83-d3addb9fb93c",
+      "name": "codigo corto",
+      "credentials": {
+        "microsoftSql": {
+          "id": "duIWyGyA6m0j4OaU",
+          "name": "MSGESTiON 01  directa 111"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select calzalindo_h from tokens ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1136,
+        -32
+      ],
+      "id": "2edbeda1-f885-4f16-a504-976960503a59",
+      "name": "token bearer calzalindo_h2",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.mercadolibre.com/orders/2000014004627042",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.calzalindo_h }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1296,
+        -32
+      ],
+      "id": "df5f67b8-c778-44ce-9cb2-1bbb6b1f6aea",
+      "name": "obtener orden especifica",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=https://api.tiendanube.com/v1/6466615/orders?shipping_status=unfulfilled\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authentication",
+              "value": "=bearer 4e8faed6d8b7e8b6ebc386c712ae5c80400e46dc"
+            },
+            {
+              "name": "User-Agent",
+              "value": "n8n-automation (calzalindoml@gmail.com)"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1088,
+        -1008
+      ],
+      "id": "cd9d2fdb-9630-49e4-8bf2-d1887329251b",
+      "name": "info productos"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mercadolibre.com/shipments/45953524998\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.calzalindo_h }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        112
+      ],
+      "id": "c547b12e-d194-4e00-a885-ed63203c491b",
+      "name": "obtener estado de envio por articulo cuenta h",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Dashboard Ventas y Stock</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            padding: 5px;\n            min-height: 100vh;\n            font-size: 13px;\n        }\n        \n        .container {\n            max-width: 98%;\n            margin: 0 auto;\n            background: white;\n            border-radius: 15px;\n            box-shadow: 0 20px 60px rgba(0,0,0,0.3);\n            padding: 15px;\n        }\n        \n        h1 {\n            color: #333;\n            margin-bottom: 15px;\n            text-align: center;\n            font-size: 1.5em;\n        }\n        \n        .stats-container {\n            display: flex;\n            gap: 15px;\n            margin-bottom: 15px;\n            justify-content: center;\n            flex-wrap: wrap;\n        }\n        \n        .stat-card {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 12px 25px;\n            border-radius: 10px;\n            text-align: center;\n            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);\n            min-width: 150px;\n        }\n        \n        .stat-card .label {\n            font-size: 0.8em;\n            opacity: 0.9;\n            margin-bottom: 3px;\n        }\n        \n        .stat-card .value {\n            font-size: 1.8em;\n            font-weight: 700;\n            line-height: 1;\n        }\n        \n        .filters {\n            background: #f8f9fa;\n            padding: 12px;\n            border-radius: 10px;\n            margin-bottom: 15px;\n            display: flex;\n            gap: 15px;\n            align-items: center;\n            flex-wrap: wrap;\n        }\n        \n        .btn-print {\n            background: #28a745;\n            margin-left: auto;\n        }\n        \n        .filter-group label {\n            font-weight: 600;\n            color: #555;\n            font-size: 0.8em;\n        }\n        \n        .filter-group select {\n            padding: 6px 10px;\n            border: 2px solid #ddd;\n            border-radius: 5px;\n            font-size: 0.85em;\n            transition: border-color 0.3s;\n            background: white;\n            cursor: pointer;\n            min-width: 160px;\n        }\n        \n        .filter-group select:focus {\n            outline: none;\n            border-color: #667eea;\n        }\n        \n        .filter-group input {\n            padding: 6px 10px;\n            border: 2px solid #ddd;\n            border-radius: 5px;\n            font-size: 0.85em;\n            transition: border-color 0.3s;\n        }\n        \n        .filter-group input:focus {\n            outline: none;\n            border-color: #667eea;\n        }\n        \n        .filter-group {\n            display: flex;\n            flex-direction: column;\n            gap: 3px;\n        }\n        \n        .checkbox-group {\n            display: flex;\n            align-items: center;\n            gap: 8px;\n            padding: 6px 10px;\n            background: white;\n            border-radius: 5px;\n            border: 2px solid #ddd;\n            align-self: flex-end;\n        }\n        \n        .checkbox-group input[type=\"checkbox\"] {\n            width: 18px;\n            height: 18px;\n            cursor: pointer;\n            accent-color: #667eea;\n        }\n        \n        .checkbox-group label {\n            font-weight: 600;\n            color: #555;\n            font-size: 0.85em;\n            cursor: pointer;\n            user-select: none;\n        }\n        \n        button {\n            padding: 6px 16px;\n            background: #667eea;\n            color: white;\n            border: none;\n            border-radius: 5px;\n            cursor: pointer;\n            font-size: 0.85em;\n            font-weight: 600;\n            transition: background 0.3s;\n            align-self: flex-end;\n        }\n        \n        button:hover {\n            background: #5568d3;\n        }\n        \n        .btn-print {\n            background: #28a745;\n        }\n        \n        .btn-print:hover {\n            background: #218838;\n        }\n        \n        .btn-hide {\n            background: #dc3545;\n            color: white;\n            padding: 4px 10px;\n            font-size: 0.75em;\n            border-radius: 4px;\n            cursor: pointer;\n            transition: all 0.3s;\n            border: none;\n            font-weight: 600;\n        }\n        \n        .btn-hide:hover {\n            background: #c82333;\n            transform: scale(1.05);\n        }\n        \n        .btn-hide:disabled {\n            background: #6c757d;\n            cursor: not-allowed;\n            opacity: 0.6;\n        }\n        \n        @media print {\n            body {\n                background: white;\n                padding: 0;\n            }\n            \n            .container {\n                box-shadow: none;\n                padding: 10px;\n                max-width: 100%;\n            }\n            \n            .filters {\n                display: none;\n            }\n            \n            button {\n                display: none;\n            }\n            \n            h1 {\n                font-size: 1.2em;\n                margin-bottom: 10px;\n            }\n            \n            .stats-container {\n                margin-bottom: 10px;\n            }\n            \n            .stat-card {\n                min-width: 100px;\n                padding: 8px 15px;\n            }\n            \n            .table-container {\n                overflow: visible;\n            }\n            \n            table {\n                width: 100%;\n                font-size: 0.65em;\n            }\n            \n            th {\n                padding: 6px 3px;\n                font-size: 0.7em;\n                background: #667eea !important;\n                color: white !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            td {\n                padding: 5px 3px;\n                font-size: 0.75em;\n            }\n            \n            .pack-badge {\n                border: 1px solid #ff6b6b;\n                background: white;\n                color: #ff6b6b;\n                padding: 2px 5px;\n                font-size: 0.7em;\n            }\n            \n            .stock-total {\n                background: #e8f5e9 !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            .row-delayed {\n                background-color: #ffebee !important;\n                border-left: 4px solid #d32f2f !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            .stock-low {\n                color: #d32f2f !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            .stock-medium {\n                color: #f57c00 !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            .stock-high {\n                color: #388e3c !important;\n                -webkit-print-color-adjust: exact;\n                print-color-adjust: exact;\n            }\n            \n            @page {\n                size: landscape;\n                margin: 0.5cm;\n            }\n        }\n        \n        .table-container {\n            overflow-x: auto;\n            border-radius: 10px;\n            box-shadow: 0 2px 10px rgba(0,0,0,0.1);\n        }\n        \n        table {\n            width: 100%;\n            border-collapse: collapse;\n            min-width: 100%;\n        }\n        \n        thead {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n        }\n        \n        th {\n            padding: 10px 6px;\n            text-align: left;\n            font-weight: 600;\n            font-size: 0.75em;\n            text-transform: uppercase;\n            letter-spacing: 0.3px;\n            cursor: pointer;\n            user-select: none;\n            position: relative;\n        }\n        \n        th.sortable:hover {\n            background: rgba(255, 255, 255, 0.1);\n        }\n        \n        th.sortable::after {\n            content: ' ⇅';\n            opacity: 0.5;\n            font-size: 0.9em;\n        }\n        \n        th.sorted-asc::after {\n            content: ' ↑';\n            opacity: 1;\n        }\n        \n        th.sorted-desc::after {\n            content: ' ↓';\n            opacity: 1;\n        }\n        \n        td {\n            padding: 8px 6px;\n            border-bottom: 1px solid #eee;\n            font-size: 0.8em;\n        }\n        \n        .pack-badge {\n            display: inline-block;\n            padding: 3px 8px;\n            background: #ff6b6b;\n            color: white;\n            border-radius: 12px;\n            font-size: 0.8em;\n            font-weight: 600;\n            margin-left: 5px;\n        }\n        \n        .stock-cell {\n            text-align: center;\n            font-weight: 600;\n        }\n        \n        .stock-total {\n            background: #e8f5e9;\n            color: #2e7d32;\n            padding: 5px;\n            border-radius: 5px;\n        }\n        \n        .stock-low {\n            color: #d32f2f;\n        }\n        \n        .stock-medium {\n            color: #f57c00;\n        }\n        \n        .stock-high {\n            color: #388e3c;\n        }\n        \n        .no-data {\n            text-align: center;\n            padding: 40px;\n            color: #999;\n            font-size: 1.2em;\n        }\n        \n        .row-color-1 {\n            background-color: #f8f9fa;\n        }\n        \n        .row-color-2 {\n            background-color: #ffffff;\n        }\n        \n        .same-pack {\n            border-left: 4px solid #667eea;\n        }\n        \n        .row-delayed {\n            background-color: #ffebee !important;\n            border-left: 4px solid #d32f2f !important;\n        }\n        \n        .row-delayed td {\n            color: #c62828;\n            font-weight: 500;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <h1>📊 Dashboard de Ventas y Stock</h1>\n        <div style=\"text-align:center; margin-bottom:15px;\">\n            <button \n                onclick=\"window.location.href='https://n8n.calzalindo.com.ar/webhook/comparar-stock'\" \n                style=\"background:#ff9800; padding:8px 18px; font-size:0.9em; border-radius:6px; cursor:pointer;\"\n            >\n               Ir a Comparación de Stock\n            </button>\n        </div>\n\n        <div class=\"stats-container\">\n            <div class=\"stat-card\">\n                <div class=\"label\">Total de Registros</div>\n                <div class=\"value\" id=\"totalRegistros\">0</div>\n            </div>\n        </div>\n        \n        <div class=\"filters\">\n            <div class=\"filter-group\">\n                <label>Vendedor:</label>\n                <select id=\"filtroVendedor\">\n                    <option value=\"\">Todos</option>\n                </select>\n            </div>\n            <div class=\"filter-group\">\n                <label>Depósito:</label>\n                <select id=\"filtroDeposito\">\n                    <option value=\"\">Todos</option>\n                    <option value=\"0\">Depo 0</option>\n                    <option value=\"1\">Depo 1</option>\n                    <option value=\"2\">Depo 2</option>\n                    <option value=\"4\">Depo 4</option>\n                    <option value=\"5\">Depo 5</option>\n                    <option value=\"6\">Depo 6</option>\n                    <option value=\"7\">Depo 7</option>\n                    <option value=\"8\">Depo 8</option>\n                    <option value=\"9\">Depo 9</option>\n                    <option value=\"15\">Depo 15</option>\n                    <option value=\"11\">Depo 11</option>\n                </select>\n            </div>\n            <div class=\"filter-group\">\n                <label>Hora Desde:</label>\n                <input type=\"datetime-local\" id=\"horaDesde\">\n            </div>\n            <div class=\"filter-group\">\n                <label>Hora Hasta:</label>\n                <input type=\"datetime-local\" id=\"horaHasta\">\n            </div>\n            <div class=\"checkbox-group\">\n                <input type=\"checkbox\" id=\"checkDemorados\" checked onchange=\"aplicarFiltros()\">\n                <label for=\"checkDemorados\">Demorados</label>\n            </div>\n            <button onclick=\"aplicarFiltros()\">Filtrar</button>\n            <button onclick=\"limpiarFiltros()\">Limpiar</button>\n            <button class=\"btn-print\" onclick=\"window.print()\">🖨️ Imprimir</button>\n        </div>\n        \n        <div class=\"table-container\">\n            <table id=\"tablaVentas\">\n                <thead>\n                    <tr>\n                        <th>Ocultar</th>\n                        <th>Fecha/Hora</th>\n                        <th>Order ID</th>\n                        <th>Pack ID</th>\n                        <th>Vendedor</th>\n                        <th>SKU</th>\n                        <th>Nombre Estantería</th>\n                        <th>Color</th>\n                        <th>Talle</th>\n                        <th>Stock Total</th>\n                        <th class=\"sortable\" data-depo=\"0\">Depo 0</th>\n                        <th class=\"sortable\" data-depo=\"1\">Depo 1</th>\n                        <th class=\"sortable\" data-depo=\"2\">Depo 2</th>\n                        <th class=\"sortable\" data-depo=\"4\">Depo 4</th>\n                        <th class=\"sortable\" data-depo=\"5\">Depo 5</th>\n                        <th class=\"sortable\" data-depo=\"6\">Depo 6</th>\n                        <th class=\"sortable\" data-depo=\"7\">Depo 7</th>\n                        <th class=\"sortable\" data-depo=\"8\">Depo 8</th>\n                        <th class=\"sortable\" data-depo=\"9\">Depo 9</th>\n                        <th class=\"sortable\" data-depo=\"15\">Depo 15</th>\n                        <th class=\"sortable\" data-depo=\"11\">Depo 11</th>\n                    </tr>\n                </thead>\n                <tbody id=\"tablaBody\">\n                    <tr>\n                        <td colspan=\"21\" class=\"no-data\">Cargando datos...</td>\n                    </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n\n    <script>\n        // ⚠️ IMPORTANTE: Reemplaza esta URL con la URL de tu webhook de n8n (Flujo 1)\n        const API_URL = 'https://n8n.calzalindo.com.ar/webhook/datos';\n        \n        let datosOriginales = [];\n        let datosFiltrados = [];\n        let ordenActual = { columna: null, direccion: 'asc' };\n\n        function actualizarContador(cantidad) {\n            document.getElementById('totalRegistros').textContent = cantidad;\n        }\n\n        function cargarVendedores() {\n            const vendedoresUnicos = [...new Set(datosOriginales.map(item => item.seller_nickname))].filter(Boolean).sort();\n            const select = document.getElementById('filtroVendedor');\n            \n            select.innerHTML = '<option value=\"\">Todos</option>';\n            vendedoresUnicos.forEach(vendedor => {\n                select.innerHTML += `<option value=\"${vendedor}\">${vendedor}</option>`;\n            });\n        }\n\n        // Función para convertir cualquier valor a número entero\n        function formatStock(stock) {\n            const num = parseFloat(stock);\n            return isNaN(num) ? 0 : Math.floor(num);\n        }\n\n       // Función para formatear fecha y hora\n   function formatDateTime(dateString) {\n    if (!dateString) return \"-\";\n\n    // Si viene ISO, usarla tal cual\n    if (!isNaN(Date.parse(dateString))) {\n        return new Date(dateString).toLocaleString(\"es-AR\");\n    }\n\n    // Si viene \"2025-12-12 15:50:20\"\n    if (dateString.includes(\" \")) {\n        const fixed = dateString.replace(\" \", \"T\");\n        if (!isNaN(Date.parse(fixed))) {\n            return new Date(fixed).toLocaleString(\"es-AR\");\n        }\n    }\n\n    // Si viene algo raro, mostrarlo sin romper\n    return dateString;\n}\n\n\n        \n        // Función para verificar si un pedido está demorado\n        function esPedidoDemorado(dateString) {\n            if (!dateString) return false;\n            \n            const fechaPedido = new Date(dateString);\n            const ahora = new Date();\n            \n            // Función auxiliar para verificar si es día hábil (lunes a viernes)\n            function esDiaHabil(fecha) {\n                const dia = fecha.getDay();\n                return dia >= 1 && dia <= 5; // 1=Lunes, 5=Viernes\n            }\n            \n            // Función para obtener el próximo día hábil después de una fecha\n            function siguienteDiaHabil(fecha) {\n                const siguiente = new Date(fecha);\n                siguiente.setDate(siguiente.getDate() + 1);\n                \n                // Si cae en sábado, avanzar a lunes\n                if (siguiente.getDay() === 6) {\n                    siguiente.setDate(siguiente.getDate() + 2);\n                }\n                // Si cae en domingo, avanzar a lunes\n                else if (siguiente.getDay() === 0) {\n                    siguiente.setDate(siguiente.getDate() + 1);\n                }\n                \n                return siguiente;\n            }\n            \n            // Calcular la fecha límite de despacho\n            let fechaLimite;\n            \n            // Si el pedido fue antes de las 13:00 en día hábil\n            if (esDiaHabil(fechaPedido) && fechaPedido.getHours() < 13) {\n                // Debe despacharse el mismo día a las 24:00\n                fechaLimite = new Date(fechaPedido);\n                fechaLimite.setHours(23, 59, 59, 999);\n            }\n            // Si el pedido fue después de las 13:00 o en fin de semana\n            else {\n                // Debe despacharse el siguiente día hábil a las 24:00\n                fechaLimite = siguienteDiaHabil(fechaPedido);\n                fechaLimite.setHours(23, 59, 59, 999);\n            }\n            \n            // Comparar con la hora actual\n            return ahora > fechaLimite;\n        }\n      \n        // Función para obtener clase CSS según nivel de stock\n        function getStockClass(stock) {\n            const stockNum = formatStock(stock);\n            if (stockNum <= 5) return 'stock-low';\n            if (stockNum <= 15) return 'stock-medium';\n            return 'stock-high';\n        }\n\n        // Función para ordenar por depósito\n        function ordenarPorDeposito(depoNumero) {\n            const depoKey = `depo${depoNumero}`;\n            \n            // Si es la misma columna, cambiar dirección\n            if (ordenActual.columna === depoKey) {\n                ordenActual.direccion = ordenActual.direccion === 'asc' ? 'desc' : 'asc';\n            } else {\n                ordenActual.columna = depoKey;\n                ordenActual.direccion = 'desc'; // Por defecto ordenar descendente (mayor a menor)\n            }\n            \n            // Ordenar los datos filtrados\n            datosFiltrados.sort((a, b) => {\n                const valorA = formatStock(a[depoKey]);\n                const valorB = formatStock(b[depoKey]);\n                \n                // Primero, separar los que tienen stock > 0\n                const tieneStockA = valorA > 0 ? 1 : 0;\n                const tieneStockB = valorB > 0 ? 1 : 0;\n                \n                // Si uno tiene stock y el otro no, priorizar el que tiene stock\n                if (tieneStockA !== tieneStockB) {\n                    return tieneStockB - tieneStockA;\n                }\n                \n                // Si ambos tienen stock o ambos no tienen, ordenar por valor\n                if (ordenActual.direccion === 'asc') {\n                    return valorA - valorB;\n                } else {\n                    return valorB - valorA;\n                }\n            });\n            \n            // Actualizar indicadores visuales en headers\n            document.querySelectorAll('th.sortable').forEach(th => {\n                th.classList.remove('sorted-asc', 'sorted-desc');\n            });\n            \n            const headerActual = document.querySelector(`th[data-depo=\"${depoNumero}\"]`);\n            if (headerActual) {\n                headerActual.classList.add(ordenActual.direccion === 'asc' ? 'sorted-asc' : 'sorted-desc');\n            }\n            \n            renderTabla(datosFiltrados);\n        }\n\n        function renderTabla(datos) {\n            const tbody = document.getElementById('tablaBody');\n            \n            if (datos.length === 0) {\n                tbody.innerHTML = '<tr><td colspan=\"21\" class=\"no-data\">No hay datos para mostrar</td></tr>';\n                actualizarContador(0);\n                return;\n            }\n\n            // Actualizar contador\n            actualizarContador(datos.length);\n\n            // Agrupar por pack_id para identificar packs duplicados\n            const packGroups = {};\n            datos.forEach(item => {\n                if (item.pack_id) {\n                    if (!packGroups[item.pack_id]) {\n                        packGroups[item.pack_id] = [];\n                    }\n                    packGroups[item.pack_id].push(item);\n                }\n            });\n\n            let html = '';\n            let currentColor = 1;\n            let lastPackId = null;\n\n            datos.forEach((item, index) => {\n                // Cambiar color solo si cambia el pack_id (solo si no hay orden activo)\n                if (!ordenActual.columna && item.pack_id !== lastPackId) {\n                    currentColor = currentColor === 1 ? 2 : 1;\n                    lastPackId = item.pack_id;\n                }\n                \n                // Si hay orden activo, alternar colores normalmente\n                if (ordenActual.columna) {\n                    currentColor = (index % 2) + 1;\n                }\n\n                const rowClass = `row-color-${currentColor}`;\n                const hasDuplicatePack = item.pack_id && packGroups[item.pack_id] && packGroups[item.pack_id].length > 1;\n                const samePack = hasDuplicatePack ? 'same-pack' : '';\n                const demorado = esPedidoDemorado(item.date_approved) ? 'row-delayed' : '';\n                \n                html += `\n                    <tr class=\"${rowClass} ${samePack} ${demorado}\">\n                        <td style=\"text-align: center;\">\n                            <button class=\"btn-hide\" onclick=\"ocultarItem('${item.order_id}')\" data-order=\"${item.order_id}\">\n                                ✕\n                            </button>\n                        </td>\n                        <td><small>${formatDateTime(item.date_approved)}</small></td>\n                        <td><strong>${item.order_id || '-'}</strong></td>\n                        <td>\n                            ${item.pack_id || '-'}\n                            ${hasDuplicatePack ? '<span class=\"pack-badge\">PACK</span>' : ''}\n                        </td>\n                        <td>${item.seller_nickname || '-'}</td>\n                        <td>${item.sku || '-'}</td>\n                        <td>${item.nombre_estanteria || '-'}</td>\n                        <td>${item.color || '-'}</td>\n                        <td>${item.talle || '-'}</td>\n                        <td class=\"stock-cell stock-total\">${formatStock(item.stock_total)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo0)}\">${formatStock(item.depo0)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo1)}\">${formatStock(item.depo1)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo2)}\">${formatStock(item.depo2)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo4)}\">${formatStock(item.depo4)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo5)}\">${formatStock(item.depo5)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo6)}\">${formatStock(item.depo6)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo7)}\">${formatStock(item.depo7)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo8)}\">${formatStock(item.depo8)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo9)}\">${formatStock(item.depo9)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo15)}\">${formatStock(item.depo15)}</td>\n                        <td class=\"stock-cell ${getStockClass(item.depo11)}\">${formatStock(item.depo11)}</td>\n                    </tr>\n                `;\n            });\n\n            tbody.innerHTML = html;\n        }\n\n        function aplicarFiltros() {\n            const vendedor = document.getElementById('filtroVendedor').value;\n            const deposito = document.getElementById('filtroDeposito').value;\n            const horaDesde = document.getElementById('horaDesde').value;\n            const horaHasta = document.getElementById('horaHasta').value;\n            const mostrarDemorados = document.getElementById('checkDemorados').checked;\n\n            datosFiltrados = datosOriginales.filter(item => {\n                // Filtro por vendedor\n                if (vendedor && item.seller_nickname !== vendedor) return false;\n                \n                // Filtro por depósito (mostrar solo los que tienen stock > 0 en ese depósito)\n                if (deposito) {\n                    const depoKey = `depo${deposito}`;\n                    const stockDepo = formatStock(item[depoKey]);\n                    if (stockDepo <= 0) return false;\n                }\n                \n                // Filtro por fecha\n                if (item.date_approved) {\n                    const fecha = new Date(item.date_approved);\n                    \n                    if (horaDesde && fecha < new Date(horaDesde)) return false;\n                    if (horaHasta && fecha > new Date(horaHasta)) return false;\n                }\n                \n                // Filtro por demorados\n                if (!mostrarDemorados) {\n                    // Si el checkbox está desmarcado, excluir los demorados\n                    if (esPedidoDemorado(item.date_approved)) return false;\n                }\n                \n                return true;\n            });\n\n            // Resetear orden al aplicar filtros\n            ordenActual = { columna: null, direccion: 'asc' };\n            document.querySelectorAll('th.sortable').forEach(th => {\n                th.classList.remove('sorted-asc', 'sorted-desc');\n            });\n\n            renderTabla(datosFiltrados);\n        }\n\n        function limpiarFiltros() {\n            document.getElementById('filtroVendedor').value = '';\n            document.getElementById('filtroDeposito').value = '';\n            document.getElementById('horaDesde').value = '';\n            document.getElementById('horaHasta').value = '';\n            document.getElementById('checkDemorados').checked = true;\n            \n            // Resetear hora hasta por defecto\n            setHoraHastaPorDefecto();\n            \n            datosFiltrados = [...datosOriginales];\n            \n            // Resetear orden\n            ordenActual = { columna: null, direccion: 'asc' };\n            document.querySelectorAll('th.sortable').forEach(th => {\n                th.classList.remove('sorted-asc', 'sorted-desc');\n            });\n            \n            renderTabla(datosFiltrados);\n        }\n\n        // Preconfigurar filtro de horaHasta con las 13:00 hora local (sin UTC)\n        function setHoraHastaPorDefecto() {\n            const ahora = new Date();\n\n            // Crear nueva fecha con hora local 13:00\n            const fechaLocal = new Date(\n                ahora.getFullYear(),\n                ahora.getMonth(),\n                ahora.getDate(),\n                13, 0, 0\n            );\n\n            // Formatear manualmente al formato YYYY-MM-DDTHH:MM (sin usar toISOString)\n            const year = fechaLocal.getFullYear();\n            const month = String(fechaLocal.getMonth() + 1).padStart(2, '0');\n            const day = String(fechaLocal.getDate()).padStart(2, '0');\n            const hours = String(fechaLocal.getHours()).padStart(2, '0');\n            const minutes = String(fechaLocal.getMinutes()).padStart(2, '0');\n\n            const fechaLocalString = `${year}-${month}-${day}T${hours}:${minutes}`;\n\n            document.getElementById('horaHasta').value = fechaLocalString;\n        }\n\n        // Ejecutar al cargar la página\n        setHoraHastaPorDefecto();\n\n        // Función para cargar datos desde n8n\n        async function cargarDatosDesdeN8N() {\n            const tbody = document.getElementById('tablaBody');\n            tbody.innerHTML = '<tr><td colspan=\"21\" class=\"no-data\">⏳ Cargando datos desde la base de datos...</td></tr>';\n            actualizarContador(0);\n            \n            try {\n                const response = await fetch(API_URL);\n                \n                if (!response.ok) {\n                    throw new Error(`Error HTTP: ${response.status}`);\n                }\n                \n                const data = await response.json();\n                \n                // n8n devuelve los datos en diferentes formatos según configuración\n                // Intentar detectar el formato correcto\n                if (Array.isArray(data)) {\n                    datosOriginales = data;\n                } else if (data.body && Array.isArray(data.body)) {\n                    datosOriginales = data.body;\n                } else if (Array.isArray(data[0])) {\n                    datosOriginales = data[0];\n                } else {\n                    console.error('Formato de datos no reconocido:', data);\n                    throw new Error('Formato de datos no válido');\n                  }\n                \n                datosFiltrados = [...datosOriginales];\n                cargarVendedores();\n                aplicarFiltros(); // Aplicar filtros iniciales (incluye el checkbox de demorados marcado por defecto)\n                \n                console.log('✅ Datos cargados correctamente:', datosOriginales.length, 'registros');\n            } catch (error) {\n                console.error('❌ Error cargando datos:', error);\n                tbody.innerHTML = `<tr><td colspan=\"21\" class=\"no-data\">⚠️ Error al cargar datos: ${error.message}<br>Verifica la URL del API y la conexión a n8n</td></tr>`;\n                actualizarContador(0);\n            }\n        }\n        \n        // Agregar event listeners a los headers de depósitos\n        document.addEventListener('DOMContentLoaded', () => {\n            document.querySelectorAll('th.sortable').forEach(th => {\n                th.addEventListener('click', () => {\n                    const depoNumero = th.getAttribute('data-depo');\n                    ordenarPorDeposito(depoNumero);\n                });\n            });\n        });\n        \n        // Cargar datos al inicio\n        cargarDatosDesdeN8N();\n        \n        // Función para ocultar un item\n        async function ocultarItem(orderId) {\n            if (!orderId) {\n                alert('⚠️ Order ID no válido');\n                return;\n            }\n            \n            // Confirmar acción\n            if (!confirm(`¿Estás seguro de que deseas ocultar el pedido ${orderId}?`)) {\n                return;\n            }\n            \n            // Deshabilitar el botón mientras se procesa\n            const btn = document.querySelector(`button[data-order=\"${orderId}\"]`);\n            if (btn) {\n                btn.disabled = true;\n                btn.textContent = '⏳';\n            }\n            \n            try {\n                const response = await fetch('https://n8n.calzalindo.com.ar/webhook/ocultar-item', {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application/json',\n                    },\n                    body: JSON.stringify({\n                        order_id: orderId\n                    })\n                });\n                \n                if (!response.ok) {\n                    throw new Error(`Error HTTP: ${response.status}`);\n                }\n                \n                // Eliminar el item de los datos\n                datosOriginales = datosOriginales.filter(item => item.order_id !== orderId);\n                datosFiltrados = datosFiltrados.filter(item => item.order_id !== orderId);\n                \n                // Re-renderizar la tabla\n                renderTabla(datosFiltrados);\n                \n                console.log('✅ Item ocultado correctamente:', orderId);\n                \n            } catch (error) {\n                console.error('❌ Error al ocultar item:', error);\n                alert(`⚠️ Error al ocultar el pedido: ${error.message}`);\n                \n                // Re-habilitar el botón en caso de error\n                if (btn) {\n                    btn.disabled = false;\n                    btn.textContent = '✕';\n                }\n            }\n        }\n        \n        // Auto-actualizar cada 30 segundos (opcional)\n        // setInterval(cargarDatosDesdeN8N, 30000);\n    </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        16
+      ],
+      "id": "36e316a8-de70-41b4-8437-38d56aa174a5",
+      "name": "reporte diario"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    '{{ $json.order_id }}' AS order_id,\n    '{{ $json.nombre_ml }}' AS nombre_ml,\n    '{{ $json.descripcion_1 }}' AS nombre_estanteria,\n    '{{ $json.codigo_barra }}' AS sku,\n    '{{ $json.codigo }}' AS codigo_corto,\n    t.deposito,\n    t.cantidad,\n    total.stock_total\nFROM (\n    -- Stock por depósito, ignorando negativos\n    SELECT \n        deposito,\n        SUM(CASE WHEN stock_actual >= 0 THEN stock_actual END) AS cantidad\n    FROM stock\n    WHERE articulo = {{ $json.codigo }}\n    GROUP BY deposito\n) AS t\nCROSS JOIN (\n    -- Stock total del artículo, ignorando negativos\n    SELECT \n        SUM(CASE WHEN stock_actual >= 0 THEN stock_actual END) AS stock_total\n    FROM stock\n    WHERE articulo = {{ $json.codigo }}\n) AS total\nORDER BY t.deposito;\n"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        2864,
+        -736
+      ],
+      "id": "fce5b6d5-e24e-4448-967a-88356247498b",
+      "name": "stock2",
+      "credentials": {
+        "microsoftSql": {
+          "id": "duIWyGyA6m0j4OaU",
+          "name": "MSGESTiON 01  directa 111"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.detalle_venta (\n  order_id,\n  codigo,\n  sku,\n  nombre_estanteria,\n  nombre_ml,\n  stock_total,\n  depo0,\n  depo1,\n  depo2,\n  depo4,\n  depo5,\n  depo6,\n  depo7,\n  depo8,\n  depo9,\n  depo11,\n  depo15\n)\nVALUES (\n  {{ $json.order_id }},\n  {{ $json.codigo_corto }},\n  {{ $json.sku }},\n  '{{ $json.nombre_estanteria }}',\n  '{{ $json.nombre_ml }}',\n  {{ $json.stock_total }},\n  {{ +$json.deposito === 0 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 1 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 2 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 4 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 5 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 6 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 7 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 8 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 9 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 11 ? ($json.cantidad || 0) : 0 }},\n  {{ +$json.deposito === 15 ? ($json.cantidad || 0) : 0 }}\n)\n\nON CONFLICT (order_id)\nDO UPDATE SET\n  stock_total = EXCLUDED.stock_total, -- <<<<<< AQUI\n  depo0  = CASE WHEN {{+$json.deposito}} = 0  THEN EXCLUDED.depo0  ELSE detalle_venta.depo0  END,\n  depo1  = CASE WHEN {{+$json.deposito}} = 1  THEN EXCLUDED.depo1  ELSE detalle_venta.depo1  END,\n  depo2  = CASE WHEN {{+$json.deposito}} = 2  THEN EXCLUDED.depo2  ELSE detalle_venta.depo2  END,\n  depo4  = CASE WHEN {{+$json.deposito}} = 4  THEN EXCLUDED.depo4  ELSE detalle_venta.depo4  END,\n  depo5  = CASE WHEN {{+$json.deposito}} = 5  THEN EXCLUDED.depo5  ELSE detalle_venta.depo5  END,\n  depo6  = CASE WHEN {{+$json.deposito}} = 6  THEN EXCLUDED.depo6  ELSE detalle_venta.depo6  END,\n  depo7  = CASE WHEN {{+$json.deposito}} = 7  THEN EXCLUDED.depo7  ELSE detalle_venta.depo7  END,\n  depo8  = CASE WHEN {{+$json.deposito}} = 8  THEN EXCLUDED.depo8  ELSE detalle_venta.depo8  END,\n  depo9  = CASE WHEN {{+$json.deposito}} = 9  THEN EXCLUDED.depo9  ELSE detalle_venta.depo9  END,\n  depo11 = CASE WHEN {{+$json.deposito}} = 11 THEN EXCLUDED.depo11 ELSE detalle_venta.depo11 END,\n  depo15 = CASE WHEN {{+$json.deposito}} = 15 THEN EXCLUDED.depo15 ELSE detalle_venta.depo15 END;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3168,
+        -736
+      ],
+      "id": "6426f346-f592-431e-800a-4c888a782aa0",
+      "name": "con negativos",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ocultar-item",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        608
+      ],
+      "id": "48d2c1a3-643c-4ff0-84d9-5b78a338ab28",
+      "name": "traer datos1",
+      "webhookId": "6cfb1a07-1a5d-40dd-bf7e-1573c70e5325"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        784,
+        608
+      ],
+      "id": "63750d94-d8e8-46e7-9f56-18c9ebfef276",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ventas_ml\nSET ocultar = TRUE\nWHERE order_id = '{{ $json.body.order_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        512,
+        608
+      ],
+      "id": "a95043ee-a5b6-4408-b4c6-bd4eb1aa0087",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## cambiar el estado para ocultar envios full\n",
+        "height": 256,
+        "width": 992,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "862a0d52-55f7-4bdb-b564-ff15d84a818b",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from tokens ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1312,
+        -736
+      ],
+      "id": "f34f9d0e-1fd0-4b3a-aa33-8342bac50cf6",
+      "name": "token",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// TOKENS\nconst token_H  = $item(0).$node[\"token\"].json.calzalindo_h;\nconst token_T  = $item(0).$node[\"token\"].json.calzalindo_tama;\nconst token_LU = $item(0).$node[\"token\"].json.calzalindo_lu;\n\nconst cuentas = [\n  { token: token_H,  seller: 196198035 },\n  { token: token_T,  seller: 159354061 },\n  { token: token_LU, seller: 529435195 }\n];\n\nconst baseUrl = \"https://api.mercadolibre.com/orders/search\";\nconst limit = 50;\n\n// Rango último mes\nconst now = new Date();\nconst hace1mes = new Date();\nhace1mes.setMonth(hace1mes.getMonth() - 1);\n\nconst fromISO = hace1mes.toISOString();\nconst toISO   = now.toISOString();\n\nlet ORDERS = [];\n\n// Función para traer orders con status=paid\nasync function traerOrders(token, seller) {\n  let offset = 0;\n  let res = [];\n\n  while (true) {\n    const url =\n      `${baseUrl}?seller=${seller}` +\n      `&order.status=paid` +\n      `&limit=${limit}` +\n      `&offset=${offset}` +\n      `&order.date_created.from=${fromISO}` +\n      `&order.date_created.to=${toISO}`;\n\n    const bearer = token.startsWith(\"Bearer\") ? token : `Bearer ${token}`;\n\n    const resp = await this.helpers.httpRequest({\n      method: \"GET\",\n      url,\n      headers: { Authorization: bearer }\n    });\n\n    if (!resp.results) break;\n\n    res.push(...resp.results);\n\n    if (!resp.paging || offset + limit >= resp.paging.total) break;\n\n    offset += limit;\n  }\n\n  return res;\n}\n\n// Ejecutar para las 3 cuentas\nfor (const c of cuentas) {\n  const data = await traerOrders.call(this, c.token, c.seller);\n  ORDERS.push(...data);\n}\n\nreturn ORDERS.map(o => ({ json: o }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        -736
+      ],
+      "id": "11c58024-87e6-4eb3-b190-c854ec2b7fa7",
+      "name": "traer ordenes paid"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Todas las órdenes entran como items\nconst orders = items.map(i => i.json);\n\n// TOKENS (del nodo token - item 0)\nconst t = $node[\"token\"].json;\n\n// Función para elegir token por seller\nfunction getToken(seller_id) {\n  switch (seller_id) {\n    case 196198035: return t.calzalindo_h;\n    case 159354061: return t.calzalindo_tama;\n    case 529435195: return t.calzalindo_lu;\n    default: return t.calzalindo_h;\n  }\n}\n\n// Convertimos todas las órdenes en promesas de fetch shipment\nconst promesas = orders.map(async (o) => {\n\n  const shippingId = o.shipping?.id;\n  if (!shippingId) return null;\n\n  const token = getToken(o.seller?.id);\n  const bearer = token.startsWith(\"Bearer\") ? token : `Bearer ${token}`;\n\n  try {\n    const shipment = await this.helpers.httpRequest({\n      method: \"GET\",\n      url: `https://api.mercadolibre.com/shipments/${shippingId}`,\n      headers: { Authorization: bearer }\n    });\n\n    if (shipment.status !== \"ready_to_ship\") {\n      return null;\n    }\n\n   return {\n  order_id: o.id,\n  pack_id: o.pack_id ?? null,\n\n  // Fechas\n  date_created: o.date_created,\n  date_approved: o.date_approved,\n  expiration_date: o.expiration_date ?? null,\n\n  // Datos generales\n  operation_type: o.operation_type ?? null,\n  reason: o.reason,\n\n  // Montos\n  total_paid_amount: o.total_amount,\n  transaction_amount: o.total_amount,\n  sale_fee: o.fees?.[0]?.value ?? null,\n\n  // Pagos\n  payment_method_id: o.payments?.[0]?.payment_method_id ?? null,\n  payment_type: o.payments?.[0]?.payment_type ?? null,\n  payer_id: o.payments?.[0]?.payer_id ?? o.buyer.id,\n\n  // Items\n  sku: o.order_items?.[0]?.item?.seller_sku ?? null,\n  quantity: o.order_items?.[0]?.quantity ?? 1,\n\n  // Variantes (color / talle)\n  color: o.order_items?.[0]?.item?.variation_attributes\n              ?.find(v => v.name === \"Color\")?.value_name ?? null,\n  talle: o.order_items?.[0]?.item?.variation_attributes\n              ?.find(v => v.name === \"Talle\")?.value_name ?? null,\n\n  // Buyer / seller\n  buyer_id: o.buyer.id,\n  buyer_nickname: o.buyer.nickname,\n  seller_id: o.seller.id,\n  seller_nickname: o.seller.nickname,\n\n  // Shipping\n  shipping_id: shippingId,\n  shipping_status: shipment.status,\n  substatus: shipment.substatus ?? null,\n\n  // Extras útiles del shipment\n  tracking_number: shipment.tracking_number ?? null,\n  date_first_printed: shipment.date_first_printed ?? null\n};\n\n\n\n  } catch (e) {\n    console.log(\"Error shipment:\", shippingId, e.message);\n    return null;\n  }\n});\n\nconst results = await Promise.all(promesas);\nconst final = results.filter(r => r !== null);\n\nreturn final.map(f => ({ json: f }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        -736
+      ],
+      "id": "5a19c39a-16a5-4038-b140-4b03b93f1546",
+      "name": "ready to ship"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        -736
+      ],
+      "id": "481b10d3-e56f-4a2a-a915-0f25eeb7489c",
+      "name": "10 minutos"
+    },
+    {
+      "parameters": {
+        "content": "## codigo corto y sku de bd local\n",
+        "height": 224,
+        "width": 1120,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2304,
+        -800
+      ],
+      "typeVersion": 1,
+      "id": "81b31f1f-8aab-402e-af54-4ae5ba05c53b",
+      "name": "bd local"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    order_id,\n    shipping_id,\n    seller_id\nFROM ventas_ml\nWHERE shipping_status='ready_to_ship'\n  AND ocultar = false;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1552,
+        -480
+      ],
+      "id": "c19f0d78-0c04-47d8-84e8-1a5dfc418e37",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from tokens ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1312,
+        -480
+      ],
+      "id": "1e9f647c-1e65-4b27-a268-51bebf598731",
+      "name": "token1",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Entradas del SELECT\nconst rows = items.map(i => i.json);\n\n// Tokens desde nodo \"token\"\nconst t = $node[\"token1\"].json;\n\nfunction getToken(seller_id) {\n  switch (Number(seller_id)) {\n    case 196198035: return t.calzalindo_h;\n    case 159354061: return t.calzalindo_tama;\n    case 529435195: return t.calzalindo_lu;\n    default: return t.calzalindo_h;\n  }\n}\n\n// Generamos requests paralelas\nconst promesas = rows.map(async r => {\n\n  const token = getToken(r.seller_id);\n  const bearer = token.startsWith(\"Bearer\") ? token : `Bearer ${token}`;\n\n  try {\n    const shipment = await this.helpers.httpRequest({\n      method: \"GET\",\n      url: `https://api.mercadolibre.com/shipments/${r.shipping_id}`,\n      headers: { Authorization: bearer }\n    });\n\n    return {\n      order_id: r.order_id,\n      shipping_id: r.shipping_id,\n      shipping_status: shipment.status\n   \n    };\n\n  } catch (e) {\n    console.log(\"Error shipment\", r.shipping_id, e.message);\n    return null;\n  }\n});\n\nconst datos = await Promise.all(promesas);\nreturn datos.filter(d => d !== null).map(d => ({ json: d }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        -480
+      ],
+      "id": "fb00286c-0e85-44d1-b3af-7225cb3ebc27",
+      "name": "consultar estado shipping"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ventas_ml\nSET\n    pack_id         = {{ $json.pack_id ? $json.pack_id : 'NULL' }},\n    shipping_status = {{ $json.shipping_status ? `'${$json.shipping_status}'` : 'NULL' }},\n  updated_at      = NOW()\nWHERE order_id = {{ $json.order_id }};\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2064,
+        -480
+      ],
+      "id": "2c029fd0-b3c3-4e77-9359-da10ac2f08fd",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "jBK9cmPo9qUw8MYd",
+          "name": "mercadolibre supabase postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Actualizar shipping status \"ready to ship\"\n",
+        "height": 224,
+        "width": 1248,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1024,
+        -544
+      ],
+      "typeVersion": 1,
+      "id": "2d7aafe2-f199-44e1-a9d4-8083af9eb7a2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        -480
+      ],
+      "id": "2047be34-83fc-42da-a53d-0869c051027b",
+      "name": "10 minutos 3"
+    }
+  ],
+  "pinData": {
+    "recibi tg token ml": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n.calzalindo.com.ar",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "sec-fetch-site": "none",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-user": "?1",
+            "sec-fetch-dest": "document",
+            "sec-ch-ua": "\"Chromium\";v=\"142\", \"Microsoft Edge\";v=\"142\", \"Not_A Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "es-419,es;q=0.9,es-ES;q=0.8,en;q=0.7,en-GB;q=0.6,en-US;q=0.5",
+            "cookie": "_ga=GA1.1.1117658659.1752695951; _ga_F8YHMMJSRK=GS2.1.s1752695951$o1$g0$t1752695952$j59$l0$h1979160623; PrestaShop-cebaa5b97e84c3c4e13423d854063d0f=def50200977746789e555b1b31fa4b9077a7cb3291151945f312a6715ab87d1ca74fd2935c4ac3fada409f42eda826fa02a612d7f159bf53a813dc080340c3686278c74fea9800280736b94463dca032a5c6be6b9a95152d4edf6d0e0d9a7c8651e6d33e30cfdfb6a7869b3c7f44b1e014a4bd197f3c387d3c590882eb579481e3c3468f913f6a43670cb6a02ad0615031328c34e7f2502b716b18a8284475003f87249dec0648cfe31b0467e1b77c6d2df091c9604bd48b2ada2f6e487221e7d587c8e6700ab6de41faa18100440aac389f5b7ce3e1d8c1ff7e6c38855d8dd2ec7fd2e3187029038557b1b9282b8a5fbb1819cc510e3f45dad2b02b906b3d5cfa784629baf9ee161b0b6bf9d65cc5add512c9d966f652bd06fa354b33f4e065ef6a84f23249bc3915b1b600104aada539e82306ed53c3a6baee07332c00227dfbf3d7a8ff28c03791597f550560ae50a32708b09da799904d7b5c645ccc18100a685d06a7ce30d1eb404c9335ce470fbc3a40aaf6559e028e1eeac2bf8b47d0574563b5b985af9008dbe82fb68d6513fec0fb9bf1dec0c445db28838ffccd6cce41be27d1c93227ea35b200ffbad61de21c1bf6ab800756cd77faee77dff3badaea4c9fa6a719c19b8b; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2B8fxBypEqnQcpQsWWbd7nJMMLj%2BETEYI96gG46%2FymfywxuF11jjzedIykTdoR6RHkBLRfqM1TCMQ%3D%3D; rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX1%2FMngvNYLLp1DSkb99yDr1XJR1%2BkSN8A8M%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX19YqIhOO%2F6UnmQJwxisgkpN1K%2FmkCmu7gY%3D; rl_session=RudderEncrypt%3AU2FsdGVkX1%2FTXwhEL1uNNwDUAlzls9sGpslspPgG5X4WNLJQwo83rGNZ1Pm2rtGChJk4GST%2Frp9hGcXbNuZ2y4b99nzgkM74cn9fY8lKGUXCVyrfGGwnBJcL5fIMaMRnFanHnkMnAXujHWFUrQUu9g%3D%3D"
+          },
+          "params": {},
+          "query": {
+            "code": "TG-691492a7392d9700010d485d-159354061"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n.calzalindo.com.ar/webhook/tokentama",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "obtener/renovar access": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "info ventas ml": {
+      "main": [
+        [
+          {
+            "node": "reporte diario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traer datos": {
+      "main": [
+        [
+          {
+            "node": "traerdatosbd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traerdatosbd": {
+      "main": [
+        [
+          {
+            "node": "Traer color y talle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar stock": {
+      "main": [
+        []
+      ]
+    },
+    "Traer color y talle": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "obtener/renovar access1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "obtener/renovar access2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "obtener/renovar access",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener/renovar access1": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener/renovar access2": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agregar a ventas_ml2": {
+      "main": [
+        [
+          {
+            "node": "traer datos de ventas2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traer datos de ventas2": {
+      "main": [
+        [
+          {
+            "node": "codigo corto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "codigo corto": {
+      "main": [
+        [
+          {
+            "node": "stock2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "token bearer calzalindo_h2": {
+      "main": [
+        [
+          {
+            "node": "obtener estado de envio por articulo cuenta h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "obtener orden especifica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reporte diario": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stock2": {
+      "main": [
+        [
+          {
+            "node": "con negativos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traer datos1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "token": {
+      "main": [
+        [
+          {
+            "node": "traer ordenes paid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traer ordenes paid": {
+      "main": [
+        [
+          {
+            "node": "ready to ship",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ready to ship": {
+      "main": [
+        [
+          {
+            "node": "agregar a ventas_ml2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10 minutos": {
+      "main": [
+        [
+          {
+            "node": "token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "consultar estado shipping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "token1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar estado shipping": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10 minutos 3": {
+      "main": [
+        [
+          {
+            "node": "token1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataErrorExecution": "all"
+  },
+  "versionId": "fd7fb42c-8729-40d9-87d0-f82a2ebd29fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "222127bd61432024b743b7c80fd78be3d217cd7dc9aece772cb095e64c7c94c4"
+  },
+  "id": "tmzH8WxgwapzkcLE",
+  "tags": []
+}
